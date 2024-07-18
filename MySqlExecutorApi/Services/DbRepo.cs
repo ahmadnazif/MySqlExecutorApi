@@ -186,22 +186,28 @@ public class DbRepo(ILogger<DbRepo> logger, MySqlDataSource db) : IDbRepo
                 };
             }
 
-            int rowAffected = 0;
+            int resultCount = 0;
 
             await using MySqlConnection connection = await db.OpenConnectionAsync(ct);
             await using MySqlCommand cmd = new(commandText, connection);
+            await using var reader = await cmd.ExecuteReaderAsync(ct);
 
             Stopwatch sw = Stopwatch.StartNew();
-            rowAffected = await cmd.ExecuteNonQueryAsync(ct);
+
+            while (await reader.ReadAsync(ct))
+            {
+                resultCount += 1;
+            }
+
             sw.Stop();
 
             return new()
             {
                 CommandText = commandText,
                 ConnecionId = connection.ServerThread,
-                Elapsed = sw.Elapsed.ToString(),    
+                Elapsed = sw.Elapsed.ToString(),
+                ResultCount = resultCount,
                 IsSuccess = true,
-                Message = $"{rowAffected} rows affected"
             };
         }
         catch (Exception ex)
@@ -237,9 +243,9 @@ public class DbRepo(ILogger<DbRepo> logger, MySqlDataSource db) : IDbRepo
             {
                 return new()
                 {
-                     CommandText = commandText,
-                     IsSuccess = false,
-                     Message = "Supplied command is not a write command"
+                    CommandText = commandText,
+                    IsSuccess = false,
+                    Message = "Supplied command is not a write command"
                 };
             }
 
@@ -258,8 +264,7 @@ public class DbRepo(ILogger<DbRepo> logger, MySqlDataSource db) : IDbRepo
                 ConnecionId = connection.ServerThread,
                 Elapsed = sw.Elapsed.ToString(),
                 RowsAffected = rowAffected,
-                IsSuccess = true,
-                Message = $"{rowAffected} rows affected"
+                IsSuccess = true
             };
         }
         catch (Exception ex)
@@ -271,6 +276,41 @@ public class DbRepo(ILogger<DbRepo> logger, MySqlDataSource db) : IDbRepo
                 IsSuccess = false,
                 Message = $"Error: {ex.Message}"
             };
+        }
+    }
+
+
+    #endregion
+
+    #region Typical functions
+
+    public async Task<List<string>> ListAllTablesAsync(CancellationToken ct)
+    {
+        try
+        {
+            List<string> data = [];
+
+            string commandText = $"SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE()";
+
+            await using MySqlConnection connection = await db.OpenConnectionAsync(ct);
+            await using MySqlCommand cmd = new(commandText, connection);
+            await using var reader = await cmd.ExecuteReaderAsync(ct);
+
+            Stopwatch sw = Stopwatch.StartNew();
+
+            while (await reader.ReadAsync(ct))
+            {
+                data.Add(GetStringValue(reader[0]));
+            }
+
+            sw.Stop();
+
+            return data;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex.Message);
+            return [];
         }
     }
 

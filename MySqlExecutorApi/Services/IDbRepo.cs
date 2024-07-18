@@ -12,4 +12,8 @@ public interface IDbRepo
     Task<ReadCommandExecutionResponse> ExecuteReadCommandAsync(string? commandText, CancellationToken ct);
     Task<WriteCommandExecutionResponse> ExecuteWriteCommandAsync(string? commandText, CancellationToken ct);
     #endregion
+
+    #region Typical in functions
+    Task<List<string>> ListAllTablesAsync(CancellationToken ct);
+    #endregion
 }

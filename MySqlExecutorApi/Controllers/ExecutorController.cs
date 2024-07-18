@@ -1,4 +1,5 @@
-﻿using MySqlExecutorApi.Services;
+﻿using Microsoft.AspNetCore.Mvc.Diagnostics;
+using MySqlExecutorApi.Services;
 
 namespace MySqlExecutorApi.Controllers;
 
@@ -28,9 +29,12 @@ public class ExecutorController(IDbRepo db, IConfiguration config) : ControllerB
         };
     }
 
-    [HttpPost("execute-command")]
-    public async Task<ActionResult<CommandExecutionResponse>> ExecuteCommand(string command, CancellationToken ct)
-    {
-        return await db.ExecuteWriteCommandAsync(command, ct);
-    }
+    [HttpGet("list-all-table")]
+    public async Task<ActionResult<List<string>>> ListAllTable(CancellationToken ct) => await db.ListAllTablesAsync(ct);
+
+    [HttpPost("execute-write-command")]
+    public async Task<ActionResult<WriteCommandExecutionResponse>> ExecuteWriteCommand(string command, CancellationToken ct) => await db.ExecuteWriteCommandAsync(command, ct);
+
+    [HttpPost("execute-read-command")]
+    public async Task<ActionResult<ReadCommandExecutionResponse>> ExecuteReadCommand(string command, CancellationToken ct) => await db.ExecuteReadCommandAsync(command, ct);
 }
