@@ -3,9 +3,9 @@ using MySqlExecutorApi.Services;
 
 namespace MySqlExecutorApi.Controllers;
 
-[Route("api/executor")]
+[Route("api/command")]
 [ApiController]
-public class ExecutorController(IDbRepo db, IConfiguration config) : ControllerBase
+public class CommandController(IDbRepo db, IConfiguration config) : ControllerBase
 {
     private readonly IDbRepo db = db;
     private readonly IConfiguration config = config;
