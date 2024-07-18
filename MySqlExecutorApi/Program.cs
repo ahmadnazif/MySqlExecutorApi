@@ -1,8 +1,12 @@
 global using Microsoft.AspNetCore.Mvc;
+global using MySqlExecutorApi.Services;
+global using MySqlExecutorApi.Models;
+global using MySqlExecutorApi.Enums;
+global using MySqlExecutorApi.Helpers;
+
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.OpenApi.Models;
 using MySqlConnector;
-using MySqlExecutorApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;

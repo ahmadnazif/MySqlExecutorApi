@@ -1,5 +1,6 @@
 ﻿using MySqlConnector;
 using MySqlExecutorApi.Models;
+using System.Diagnostics;
 using System.Text.Json;
 
 namespace MySqlExecutorApi.Services;
@@ -154,6 +155,124 @@ public class DbRepo(ILogger<DbRepo> logger, MySqlDataSource db) : IDbRepo
             return null;
         }
     }
+
+    #endregion
+
+    #region Command exe
+
+    public async Task<ReadCommandExecutionResponse> ExecuteReadCommandAsync(string? commandText, CancellationToken ct)
+    {
+        try
+        {
+            var type = SqlCommandTypeDetector.GetCommandType(commandText);
+
+            if (type == SqlCommandType.Unknown)
+            {
+                return new()
+                {
+                    CommandText = commandText,
+                    IsSuccess = false,
+                    Message = "Supplied command is not valid"
+                };
+            }
+
+            if (type != SqlCommandType.Read)
+            {
+                return new()
+                {
+                    CommandText = commandText,
+                    IsSuccess = false,
+                    Message = "Supplied command is not a read command"
+                };
+            }
+
+            int rowAffected = 0;
+
+            await using MySqlConnection connection = await db.OpenConnectionAsync(ct);
+            await using MySqlCommand cmd = new(commandText, connection);
+
+            Stopwatch sw = Stopwatch.StartNew();
+            rowAffected = await cmd.ExecuteNonQueryAsync(ct);
+            sw.Stop();
+
+            return new()
+            {
+                CommandText = commandText,
+                ConnecionId = connection.ServerThread,
+                Elapsed = sw.Elapsed.ToString(),
+                IsSuccess = true,
+                Message = $"{rowAffected} rows affected"
+            };
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex.Message);
+            return new()
+            {
+                CommandText = commandText,
+                IsSuccess = false,
+                Message = $"Error: {ex.Message}"
+            };
+        }
+    }
+
+
+    public async Task<WriteCommandExecutionResponse> ExecuteWriteCommandAsync(string? commandText, CancellationToken ct)
+    {
+        try
+        {
+            var type = SqlCommandTypeDetector.GetCommandType(commandText);
+
+            if (type == SqlCommandType.Unknown)
+            {
+                return new()
+                {
+                    CommandText = commandText,
+                    IsSuccess = false,
+                    Message = "Supplied command is not valid"
+                };
+            }
+
+            if (type != SqlCommandType.Write)
+            {
+                return new()
+                {
+                     CommandText = commandText,
+                     IsSuccess = false,
+                     Message = "Supplied command is not a write command"
+                };
+            }
+
+            int rowAffected = 0;
+
+            await using MySqlConnection connection = await db.OpenConnectionAsync(ct);
+            await using MySqlCommand cmd = new(commandText, connection);
+
+            Stopwatch sw = Stopwatch.StartNew();
+            rowAffected = await cmd.ExecuteNonQueryAsync(ct);
+            sw.Stop();
+
+            return new()
+            {
+                CommandText = commandText,
+                ConnecionId = connection.ServerThread,
+                Elapsed = sw.Elapsed.ToString(),
+                IsSuccess = true,
+                Message = $"{rowAffected} rows affected"
+            };
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex.Message);
+            return new()
+            {
+                CommandText = commandText,
+                IsSuccess = false,
+                Message = $"Error: {ex.Message}"
+            };
+        }
+    }
+
 
     #endregion
 }

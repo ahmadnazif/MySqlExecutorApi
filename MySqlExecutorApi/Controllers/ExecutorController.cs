@@ -1,5 +1,4 @@
-﻿using MySqlExecutorApi.Models;
-using MySqlExecutorApi.Services;
+﻿using MySqlExecutorApi.Services;
 
 namespace MySqlExecutorApi.Controllers;
 
@@ -27,5 +26,11 @@ public class ExecutorController(IDbRepo db, IConfiguration config) : ControllerB
             StartTime = status.StartTime,
             Uptime = status.Uptime
         };
+    }
+
+    [HttpPost("execute-command")]
+    public async Task<ActionResult<CommandExecutionResponse>> ExecuteCommand(string command, CancellationToken ct)
+    {
+        return await db.ExecuteWriteCommandAsync(command, ct);
     }
 }
