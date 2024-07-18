@@ -5,4 +5,5 @@
 [ApiController]
 public class HomeController : ControllerBase
 {
+    [HttpGet] public ActionResult Redirect() => Redirect("swagger");
 }
