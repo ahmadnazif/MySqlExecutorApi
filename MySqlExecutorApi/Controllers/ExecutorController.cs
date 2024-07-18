@@ -28,9 +28,15 @@ public class ExecutorController(IDbRepo db, IConfiguration config) : ControllerB
         };
     }
 
-    [HttpPost("execute-command")]
-    public async Task<ActionResult<CommandExecutionResponse>> ExecuteCommand(string command, CancellationToken ct)
+    [HttpPost("execute-write-command")]
+    public async Task<ActionResult<WriteCommandExecutionResponse>> ExecuteWriteCommand(string command, CancellationToken ct)
     {
         return await db.ExecuteWriteCommandAsync(command, ct);
+    }
+
+    [HttpPost("execute-read-command")]
+    public async Task<ActionResult<ReadCommandExecutionResponse>> ExecuteReadCommand(string command, CancellationToken ct)
+    {
+        return await db.ExecuteReadCommandAsync(command, ct);
     }
 }

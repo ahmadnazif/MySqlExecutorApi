@@ -9,7 +9,7 @@ public class CommandExecutionResponse : PostResponse
 
 public class ReadCommandExecutionResponse : CommandExecutionResponse
 {
-
+    public int ResultCount { get; set; }
 }
 
 public class WriteCommandExecutionResponse : CommandExecutionResponse

@@ -186,22 +186,28 @@ public class DbRepo(ILogger<DbRepo> logger, MySqlDataSource db) : IDbRepo
                 };
             }
 
-            int rowAffected = 0;
+            int resultCount = 0;
 
             await using MySqlConnection connection = await db.OpenConnectionAsync(ct);
             await using MySqlCommand cmd = new(commandText, connection);
+            await using var reader = await cmd.ExecuteReaderAsync(ct);
 
             Stopwatch sw = Stopwatch.StartNew();
-            rowAffected = await cmd.ExecuteNonQueryAsync(ct);
+
+            while(await reader.ReadAsync(ct))
+            {
+                resultCount += 1;
+            }
+
             sw.Stop();
 
             return new()
             {
                 CommandText = commandText,
                 ConnecionId = connection.ServerThread,
-                Elapsed = sw.Elapsed.ToString(),    
+                Elapsed = sw.Elapsed.ToString(),   
+                ResultCount = resultCount,
                 IsSuccess = true,
-                Message = $"{rowAffected} rows affected"
             };
         }
         catch (Exception ex)
@@ -258,8 +264,7 @@ public class DbRepo(ILogger<DbRepo> logger, MySqlDataSource db) : IDbRepo
                 ConnecionId = connection.ServerThread,
                 Elapsed = sw.Elapsed.ToString(),
                 RowsAffected = rowAffected,
-                IsSuccess = true,
-                Message = $"{rowAffected} rows affected"
+                IsSuccess = true
             };
         }
         catch (Exception ex)
