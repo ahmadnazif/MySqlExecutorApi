@@ -14,5 +14,5 @@ public class ReadCommandExecutionResponse : CommandExecutionResponse
 
 public class WriteCommandExecutionResponse : CommandExecutionResponse
 {
-    public int AffectedRows { get; set; }
+    public int RowsAffected { get; set; }
 }

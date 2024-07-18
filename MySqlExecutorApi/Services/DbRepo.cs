@@ -199,7 +199,7 @@ public class DbRepo(ILogger<DbRepo> logger, MySqlDataSource db) : IDbRepo
             {
                 CommandText = commandText,
                 ConnecionId = connection.ServerThread,
-                Elapsed = sw.Elapsed.ToString(),
+                Elapsed = sw.Elapsed.ToString(),    
                 IsSuccess = true,
                 Message = $"{rowAffected} rows affected"
             };
@@ -257,6 +257,7 @@ public class DbRepo(ILogger<DbRepo> logger, MySqlDataSource db) : IDbRepo
                 CommandText = commandText,
                 ConnecionId = connection.ServerThread,
                 Elapsed = sw.Elapsed.ToString(),
+                RowsAffected = rowAffected,
                 IsSuccess = true,
                 Message = $"{rowAffected} rows affected"
             };
