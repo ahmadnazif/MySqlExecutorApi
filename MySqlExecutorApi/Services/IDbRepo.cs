@@ -13,7 +13,7 @@ public interface IDbRepo
     Task<WriteCommandExecutionResponse> ExecuteWriteCommandAsync(string? commandText, CancellationToken ct);
     #endregion
 
-    #region Typical in functions
+    #region Typical functions
     Task<List<string>> ListAllTablesAsync(CancellationToken ct);
 
     Task<MySqlTableInfo> GetTableInfoAsync(string tableName, CancellationToken ct);
