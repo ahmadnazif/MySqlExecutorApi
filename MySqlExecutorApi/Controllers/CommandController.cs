@@ -33,8 +33,8 @@ public class CommandController(IDbRepo db, IConfiguration config) : ControllerBa
     public async Task<ActionResult<List<string>>> ListAllTable(CancellationToken ct) => await db.ListAllTablesAsync(ct);
 
     [HttpPost("execute-write-command")]
-    public async Task<ActionResult<WriteCommandExecutionResponse>> ExecuteWriteCommand(string command, CancellationToken ct) => await db.ExecuteWriteCommandAsync(command, ct);
+    public async Task<ActionResult<WriteCommandExecutionResponse>> ExecuteWriteCommand(string commandText, CancellationToken ct) => await db.ExecuteWriteCommandAsync(commandText, ct);
 
     [HttpPost("execute-read-command")]
-    public async Task<ActionResult<ReadCommandExecutionResponse>> ExecuteReadCommand(string command, CancellationToken ct) => await db.ExecuteReadCommandAsync(command, ct);
+    public async Task<ActionResult<ReadCommandExecutionResponse>> ExecuteReadCommand(string commandText, CancellationToken ct) => await db.ExecuteReadCommandAsync(commandText, ct);
 }
