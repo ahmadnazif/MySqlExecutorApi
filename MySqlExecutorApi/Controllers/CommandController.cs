@@ -20,12 +20,13 @@ public class CommandController(IDbRepo db, IConfiguration config) : ControllerBa
             DbIp = config["Db:Server"],
             DbName = config["Db:DbName"],
             DbUserId = config["Db:UserId"],
-            AppConnectionTimeoutSec = status.AppConnectionTimeoutSec,
-            DefaultCommandTimeoutSec = status.DefaultCommandTimeoutSec,
-            MySqlVersion = status.MySqlVersion,
-            ServerConnectionTimeoutSec = status.ServerConnectionTimeoutSec,
-            StartTime = status.StartTime,
-            Uptime = status.Uptime
+            AppConnectionTimeoutSec = status == null ? 0 : status.AppConnectionTimeoutSec,
+            DefaultCommandTimeoutSec = status == null ? 0 : status.DefaultCommandTimeoutSec,
+            MySqlVersion = status?.MySqlVersion,
+            ServerConnectionTimeoutSec = status == null ? 0 : status.ServerConnectionTimeoutSec,
+            StartTime = status?.StartTime,
+            Uptime = status?.Uptime,
+            QueryStatus = status.QueryStatus
         };
     }
 

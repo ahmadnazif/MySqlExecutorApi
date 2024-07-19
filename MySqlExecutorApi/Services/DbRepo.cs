@@ -97,6 +97,8 @@ public class DbRepo(ILogger<DbRepo> logger, MySqlDataSource db) : IDbRepo
     {
         try
         {
+            Stopwatch sw = Stopwatch.StartNew();
+
             var sql =
                 $"SELECT * FROM performance_schema.global_status WHERE variable_name IN ('Uptime');" +
                 $"SELECT * FROM performance_schema.global_variables WHERE variable_name IN ('version', 'connect_timeout');";
@@ -116,8 +118,8 @@ public class DbRepo(ILogger<DbRepo> logger, MySqlDataSource db) : IDbRepo
 
             while (await reader.ReadAsync(ct))
             {
-                var name = GetStringValue(reader[0]);
-                var valStr = GetStringValue(reader[1]);
+                var name = GetStringValue(reader[0]); // VARIABLE_NAME
+                var valStr = GetStringValue(reader[1]); // VARIABLE_VALUE
 
                 switch (name)
                 {
@@ -129,8 +131,8 @@ public class DbRepo(ILogger<DbRepo> logger, MySqlDataSource db) : IDbRepo
 
             while (await reader.ReadAsync(ct))
             {
-                var name = GetStringValue(reader[0]);
-                var valStr = GetStringValue(reader[1]);
+                var name = GetStringValue(reader[0]); // VARIABLE_NAME
+                var valStr = GetStringValue(reader[1]); // VARIABLE_VALUE
 
                 switch (name)
                 {
@@ -138,6 +140,7 @@ public class DbRepo(ILogger<DbRepo> logger, MySqlDataSource db) : IDbRepo
                     case "connect_timeout": serverConnectionTimeout = valStr; break;
                 }
             }
+            sw.Stop();
 
             return new MySqlStatus
             {
@@ -146,13 +149,25 @@ public class DbRepo(ILogger<DbRepo> logger, MySqlDataSource db) : IDbRepo
                 ServerConnectionTimeoutSec = int.Parse(serverConnectionTimeout),
                 AppConnectionTimeoutSec = appConnectionTimeout,
                 DefaultCommandTimeoutSec = commandTimeout,
-                StartTime = DateTime.Now.Subtract(uptime.Value)
+                StartTime = DateTime.Now.Subtract(uptime.Value),
+                QueryStatus = new PostResponse
+                {
+                    IsSuccess = true,
+                    Message = $"Query OK [{sw.Elapsed}]"
+                }
             };
         }
         catch (Exception ex)
         {
             logger.LogError(ex.Message);
-            return null;
+            return new MySqlStatusBase
+            {
+                QueryStatus = new PostResponse
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                }
+            };
         }
     }
 
