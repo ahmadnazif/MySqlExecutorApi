@@ -369,35 +369,84 @@ public class DbRepo(ILogger<DbRepo> logger, MySqlDataSource db) : IDbRepo
             });
         }
 
-        // Indexes
+        // Individual indexes
         // ==========
 
-        List<MySqlTableIndex> indexes = [];
-        var indexesQuery = @"
+        List<MySqlTableIndexIndividual> individualIndexes = [];
+        var indQuery = @"
             SELECT INDEX_NAME, COLUMN_NAME, NON_UNIQUE, INDEX_TYPE
             FROM information_schema.STATISTICS
             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = @tableName";
 
-        await using var indexConnection = await db.OpenConnectionAsync(ct);
-        await using var indexesCommand = new MySqlCommand(indexesQuery, indexConnection);
-        indexesCommand.Parameters.AddWithValue("@tableName", tableName);
+        await using var indConnection = await db.OpenConnectionAsync(ct);
+        await using var indCommand = new MySqlCommand(indQuery, indConnection);
+        indCommand.Parameters.AddWithValue("@tableName", tableName);
 
-        await using var indexReader = await indexesCommand.ExecuteReaderAsync(ct);
-        while (await indexReader.ReadAsync(ct))
+        await using var indReader = await indCommand.ExecuteReaderAsync(ct);
+        while (await indReader.ReadAsync(ct))
         {
-            indexes.Add(new()
+            individualIndexes.Add(new()
             {
-                IndexName = GetStringValue(indexReader[0]),
-                Column = GetStringValue(indexReader[1]),
-                IsUnique = GetIntValue(indexReader[2]) == 0,
-                IndexType = GetStringValue(indexReader[3])
+                IndexName = GetStringValue(indReader[0]),
+                Column = GetStringValue(indReader[1]),
+                IsUnique = GetIntValue(indReader[2]) == 0,
+                IndexType = GetStringValue(indReader[3])
             });
         }
+
+        // Indexes
+        // ==========
+
+        List<MySqlTableIndex> tempIndexes = [];
+
+        var idxQuery = @"
+            SELECT INDEX_NAME, COLUMN_NAME, SEQ_IN_INDEX, INDEX_TYPE, NON_UNIQUE 
+            FROM information_schema.STATISTICS
+            WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = @tableName
+            ORDER BY INDEX_NAME, SEQ_IN_INDEX";
+
+        await using var idxConnection = await db.OpenConnectionAsync(ct);
+        await using var idxCommand = new MySqlCommand(idxQuery, idxConnection);
+        idxCommand.Parameters.AddWithValue("@tableName", tableName);
+
+        Dictionary<string, Dictionary<string, int>> idxes = [];
+
+        await using var idxReader = await idxCommand.ExecuteReaderAsync(ct);
+        while (await idxReader.ReadAsync(ct))
+        {
+            var indexName = GetStringValue(idxReader[0]);
+            var columnName = GetStringValue(idxReader[1]);
+            int seqInIndex = GetIntValue(idxReader[2]).Value;
+            var idxType = GetStringValue(idxReader[3]);
+            var idxUnique = GetIntValue(idxReader[4]).Value == 0;
+
+            if (!idxes.TryGetValue(indexName, out var value))
+            {
+                value = [];
+                idxes[indexName] = value;
+            }
+
+            value.Add(columnName, seqInIndex);
+
+            tempIndexes.Add(new MySqlTableIndex
+            {
+                IndexName = indexName,
+                Columns = value.ToDictionary(),
+                IndexType = GetStringValue(idxReader[3]),
+                IsUnique = GetIntValue(idxReader[4]).Value == 0
+            });
+        }
+
+        var indexes = tempIndexes
+            .GroupBy(index => index.IndexName)
+            .Select(group => group.OrderByDescending(index => index.Columns.Count)
+            .First()).ToList();
 
         return new()
         {
             TableName = tableName,
             Columns = columns,
+            IndexesIndividual = individualIndexes,
             Indexes = indexes
         };
     }
