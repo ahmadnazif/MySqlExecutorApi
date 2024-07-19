@@ -314,6 +314,36 @@ public class DbRepo(ILogger<DbRepo> logger, MySqlDataSource db) : IDbRepo
         }
     }
 
+    public async Task<string> GetTableInfoAsync(string tableName, CancellationToken ct)
+    {
+        try
+        {
+            string data = null;
+
+            string commandText = $"SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE()";
+
+            await using MySqlConnection connection = await db.OpenConnectionAsync(ct);
+            await using MySqlCommand cmd = new(commandText, connection);
+            await using var reader = await cmd.ExecuteReaderAsync(ct);
+
+            Stopwatch sw = Stopwatch.StartNew();
+
+            while (await reader.ReadAsync(ct))
+            {
+                //data.Add(GetStringValue(reader[0]));
+            }
+
+            sw.Stop();
+
+            return data;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex.Message);
+            return null;
+        }
+    }
+
 
     #endregion
 }
