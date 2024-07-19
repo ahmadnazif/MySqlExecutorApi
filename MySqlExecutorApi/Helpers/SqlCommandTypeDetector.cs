@@ -20,6 +20,7 @@ public partial class SqlCommandTypeDetector
 
     [GeneratedRegex(@"^\s*(SELECT|SHOW|DESCRIBE|EXPLAIN)\s+", RegexOptions.IgnoreCase, "en-MY")]
     private static partial Regex ReadRegex();
+
     [GeneratedRegex(@"^\s*(INSERT|UPDATE|DELETE|REPLACE|ALTER|CREATE|DROP|TRUNCATE|LOAD|RENAME|SET)\s+", RegexOptions.IgnoreCase, "en-MY")]
     private static partial Regex WriteRegex();
 }
