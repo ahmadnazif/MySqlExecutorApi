@@ -1,6 +1,13 @@
-@MySqlExecutorApi_HostAddress = http://localhost:5175
+@MySqlExecutorApi_HostAddress = http://localhost:8765/api
 
-GET {{MySqlExecutorApi_HostAddress}}/weatherforecast/
+GET {{MySqlExecutorApi_HostAddress}}/command/get-db-status/
 Accept: application/json
+###
 
+GET {{MySqlExecutorApi_HostAddress}}/command/list-all-table/
+Accept: application/json
+###
+
+GET {{MySqlExecutorApi_HostAddress}}/command/get-table-info?tableName=user
+Accept: application/json
 ###
