@@ -3,7 +3,6 @@
 public class MySqlTableInfo
 {
     public string? TableName { get; set; }
-    public int RowCount { get; set; }
     public List<MySqlTableColumn> Columns { get; set; }
     public List<MySqlTableIndex> Indexes { get; set; }
 }

@@ -345,21 +345,6 @@ public class DbRepo(ILogger<DbRepo> logger, MySqlDataSource db) : IDbRepo
         if (!tableExist)
             return null;
 
-        // Count
-        // =======
-
-        int rowCount = 0;
-        var rowCountQuery = $"SELECT COUNT(*) FROM `{tableName}`";
-
-        await using var rowCountConnection = await db.OpenConnectionAsync(ct);
-        await using var rowCountCommand = new MySqlCommand(rowCountQuery, rowCountConnection);
-        await using MySqlDataReader rowCountReader = await rowCountCommand.ExecuteReaderAsync(ct);
-
-        while (await rowCountReader.ReadAsync(ct))
-        {
-            rowCount = GetIntValue(rowCountReader[0]).Value;
-        }
-
         // Columns
         // ==========
 
@@ -412,7 +397,6 @@ public class DbRepo(ILogger<DbRepo> logger, MySqlDataSource db) : IDbRepo
         return new()
         {
             TableName = tableName,
-            RowCount = rowCount,
             Columns = columns,
             Indexes = indexes
         };
