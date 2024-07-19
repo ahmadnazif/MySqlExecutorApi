@@ -4,7 +4,7 @@ public class MySqlTableInfo
 {
     public string? TableName { get; set; }
     public List<MySqlTableColumn> Columns { get; set; }
-    public List<MySqlTableIndexIndividual> IndexesIndividual { get; set; }
+    //public List<MySqlTableIndexIndividual> IndexesIndividual { get; set; }
     public List<MySqlTableIndex> Indexes { get; set; }
 }
 

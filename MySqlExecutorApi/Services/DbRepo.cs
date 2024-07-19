@@ -369,30 +369,30 @@ public class DbRepo(ILogger<DbRepo> logger, MySqlDataSource db) : IDbRepo
             });
         }
 
-        // Individual indexes
-        // ==========
+        //// Individual indexes
+        //// ==========
 
-        List<MySqlTableIndexIndividual> individualIndexes = [];
-        var indQuery = @"
-            SELECT INDEX_NAME, COLUMN_NAME, NON_UNIQUE, INDEX_TYPE
-            FROM information_schema.STATISTICS
-            WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = @tableName";
+        //List<MySqlTableIndexIndividual> individualIndexes = [];
+        //var indQuery = @"
+        //    SELECT INDEX_NAME, COLUMN_NAME, NON_UNIQUE, INDEX_TYPE
+        //    FROM information_schema.STATISTICS
+        //    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = @tableName";
 
-        await using var indConnection = await db.OpenConnectionAsync(ct);
-        await using var indCommand = new MySqlCommand(indQuery, indConnection);
-        indCommand.Parameters.AddWithValue("@tableName", tableName);
+        //await using var indConnection = await db.OpenConnectionAsync(ct);
+        //await using var indCommand = new MySqlCommand(indQuery, indConnection);
+        //indCommand.Parameters.AddWithValue("@tableName", tableName);
 
-        await using var indReader = await indCommand.ExecuteReaderAsync(ct);
-        while (await indReader.ReadAsync(ct))
-        {
-            individualIndexes.Add(new()
-            {
-                IndexName = GetStringValue(indReader[0]),
-                Column = GetStringValue(indReader[1]),
-                IsUnique = GetIntValue(indReader[2]) == 0,
-                IndexType = GetStringValue(indReader[3])
-            });
-        }
+        //await using var indReader = await indCommand.ExecuteReaderAsync(ct);
+        //while (await indReader.ReadAsync(ct))
+        //{
+        //    individualIndexes.Add(new()
+        //    {
+        //        IndexName = GetStringValue(indReader[0]),
+        //        Column = GetStringValue(indReader[1]),
+        //        IsUnique = GetIntValue(indReader[2]) == 0,
+        //        IndexType = GetStringValue(indReader[3])
+        //    });
+        //}
 
         // Indexes
         // ==========
@@ -446,7 +446,7 @@ public class DbRepo(ILogger<DbRepo> logger, MySqlDataSource db) : IDbRepo
         {
             TableName = tableName,
             Columns = columns,
-            IndexesIndividual = individualIndexes,
+            //IndexesIndividual = individualIndexes,
             Indexes = indexes
         };
     }
