@@ -16,6 +16,6 @@ public interface IDbRepo
     #region Typical in functions
     Task<List<string>> ListAllTablesAsync(CancellationToken ct);
 
-    Task<string> GetTableInfoAsync(string tableName, CancellationToken ct);
+    Task<MySqlTableInfo> GetTableInfoAsync(string tableName, CancellationToken ct);
     #endregion
 }
