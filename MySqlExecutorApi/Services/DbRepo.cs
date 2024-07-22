@@ -474,7 +474,7 @@ public class DbRepo(ILogger<DbRepo> logger, MySqlDataSource db, IConfiguration c
         {
             string data = null;
 
-            string commandText = $"SHOW GRANTS FOR '{dbUsername}'@'{dbServer}';";
+            string commandText = $"SHOW GRANTS;";
 
             await using MySqlConnection connection = await db.OpenConnectionAsync(ct);
             await using MySqlCommand cmd = new(commandText, connection);
