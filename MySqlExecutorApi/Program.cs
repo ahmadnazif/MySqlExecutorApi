@@ -4,7 +4,6 @@ global using MySqlExecutorApi.Models;
 global using MySqlExecutorApi.Enums;
 global using MySqlExecutorApi.Helpers;
 
-using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.OpenApi.Models;
 using MySqlConnector;
 
