@@ -5,10 +5,12 @@ using System.Text.Json;
 
 namespace MySqlExecutorApi.Services;
 
-public class DbRepo(ILogger<DbRepo> logger, MySqlDataSource db) : IDbRepo
+public class DbRepo(ILogger<DbRepo> logger, MySqlDataSource db, IConfiguration config) : IDbRepo
 {
     private readonly ILogger<DbRepo> logger = logger;
     private readonly MySqlDataSource db = db;
+    private readonly string dbServer = config["Db:Server"];
+    private readonly string dbUsername = config["Db:UserId"];
 
     #region Helper
     private static object? GetObjectValue(object obj)
@@ -464,6 +466,36 @@ public class DbRepo(ILogger<DbRepo> logger, MySqlDataSource db) : IDbRepo
             //IndexesIndividual = individualIndexes,
             Indexes = indexes
         };
+    }
+
+    public async Task<string> ShowGrantsAsync(CancellationToken ct)
+    {
+        try
+        {
+            string data = null;
+
+            string commandText = $"SHOW GRANTS FOR '{dbUsername}'@'{dbServer}';";
+
+            await using MySqlConnection connection = await db.OpenConnectionAsync(ct);
+            await using MySqlCommand cmd = new(commandText, connection);
+            await using var reader = await cmd.ExecuteReaderAsync(ct);
+
+            Stopwatch sw = Stopwatch.StartNew();
+
+            while (await reader.ReadAsync(ct))
+            {
+                data = GetStringValue(reader[0]);
+            }
+
+            sw.Stop();
+
+            return data;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex.Message);
+            return null;
+        }
     }
 
     #endregion

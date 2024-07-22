@@ -36,6 +36,9 @@ public class CommandController(IDbRepo db, IConfiguration config) : ControllerBa
     [HttpGet("get-table-info")]
     public async Task<ActionResult<MySqlTableInfo>> GetTableInfo(string tableName, CancellationToken ct) => await db.GetTableInfoAsync(tableName, ct);
 
+    [HttpGet("show-grants")]
+    public async Task<ActionResult<string>> ShowGrants(CancellationToken ct) => await db.ShowGrantsAsync(ct);
+
     [HttpPost("execute-write-command")]
     public async Task<ActionResult<WriteCommandExecutionResponse>> ExecuteWriteCommand(string commandText, CancellationToken ct) => await db.ExecuteWriteCommandAsync(commandText, ct);
 

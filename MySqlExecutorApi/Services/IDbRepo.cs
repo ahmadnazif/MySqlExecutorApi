@@ -17,5 +17,6 @@ public interface IDbRepo
     Task<List<string>> ListAllTablesAsync(CancellationToken ct);
 
     Task<MySqlTableInfo> GetTableInfoAsync(string tableName, CancellationToken ct);
+    Task<string> ShowGrantsAsync(CancellationToken ct);
     #endregion
 }
